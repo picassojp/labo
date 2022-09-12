@@ -21,9 +21,9 @@ require("treeClust")
 require("ggplot2")
 
 # Poner la carpeta de la materia de SU computadora local
-setwd("/home/aleb/dmeyf2022")
+setwd("C:/Users/juancho/Desktop/DMEF/")
 # Poner sus semillas
-semillas <- c(17, 19, 23, 29, 31)
+semillas <- c(668111, 945577, 433889, 914371, 676241)
 
 # Cargamos el dataset
 dataset <- fread("./datasets/competencia1_2022.csv")

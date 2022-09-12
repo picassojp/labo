@@ -5,7 +5,11 @@ gc()             #garbage collection
 require("data.table")
 require("rpart")
 
-setwd("." )  #establezco la carpeta donde voy a trabajar
+# Poner la carpeta de la materia de SU computadora local
+setwd("C:/Users/juancho/Desktop/DMEF/")  #Establezco el Working Directory
+# Poner sus semillas
+semillas <- c(668111, 945577, 433889, 914371, 676241)
+
 #cargo el dataset
 dataset  <- fread( "./datasets/competencia1_2022.csv")
 
@@ -19,7 +23,7 @@ for( vmaxdepth  in 4:25 )
 {
 
   #genero el modelo
-  modelo  <- rpart(formula= "clase_binaria ~ . -clase_ternaria -mcomisiones_mantenimiento -Visa_mpagado",
+  modelo  <- rpart(formula= "clase_binaria ~ . -clase_ternaria -mcomisiones_mantenimiento -Visa_mpagado", #se sacan 2 variables que pueden provocar data drifting
                    data= dataset_entrenar,
                    model= TRUE, #quiero que me devuelva el modelo
                    xval= 0,
@@ -47,6 +51,6 @@ for( vmaxdepth  in 4:25 )
 
   #genero el archivo para Kaggle
   fwrite( entrega,
-          file= paste0("./kaggle/altura_", vmaxdepth, ".csv"))
+          file= paste0("./exp/KA2003/altura_", vmaxdepth, ".csv"))
 }
 

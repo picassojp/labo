@@ -6,12 +6,16 @@ require("data.table")
 require("rpart")
 require("rpart.plot")
 
-setwd("." )  #establezco la carpeta donde voy a trabajar
+# Poner la carpeta de la materia de SU computadora local
+setwd("C:/Users/juancho/Desktop/DMEF/")  #Establezco el Working Directory
+# Poner sus semillas
+semillas <- c(668111, 945577, 433889, 914371, 676241)
+
 #cargo el dataset
 dataset  <- fread( "./datasets/competencia1_2022.csv")
 
 #uso esta semilla para los canaritos
-set.seed(102191)
+set.seed(semillas[1])
 
 #agrego 30 canaritos
 for( i in 1:30 ) dataset[ , paste0("canarito", i ) :=  runif( nrow(dataset)) ]
@@ -41,7 +45,7 @@ prediccion  <- predict( modelo_pruned, dapply, type = "prob")[,"BAJA+2"]
 entrega  <-  as.data.table( list( "numero_de_cliente"= dapply$numero_de_cliente,
                                   "Predicted"= as.integer(  prediccion > 0.025 ) ) )
 
-fwrite( entrega, paste0( "./kaggle/stopping_at_canaritos.csv"), sep="," )
+fwrite( entrega, paste0( "./exp/KA2003/stopping_at_canaritos.csv"), sep="," )
 
 pdf(file = "./work/stopping_at_canaritos.pdf", width=28, height=4)
 prp(modelo_pruned, extra=101, digits=5, branch=1, type=4, varlen=0, faclen=0)

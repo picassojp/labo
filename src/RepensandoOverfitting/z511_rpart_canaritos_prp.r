@@ -6,17 +6,21 @@ require("data.table")
 require("rpart")
 require("rpart.plot")
 
-setwd("." )  #establezco la carpeta donde voy a trabajar
+# Poner la carpeta de la materia de SU computadora local
+setwd("C:/Users/juancho/Desktop/DMEF/")  #Establezco el Working Directory
+# Poner sus semillas
+semillas <- c(668111, 945577, 433889, 914371, 676241)
+
 #cargo el dataset
 dataset  <- fread( "./datasets/competencia1_2022.csv")
 
 #uso esta semilla para los canaritos
-set.seed(102191)
+set.seed(semillas[1])
 
 #agrego una variable canarito, random distribucion uniforme en el intervalo [0,1]
 dataset[ ,  canarito1 :=  runif( nrow(dataset) ) ]
 
-#agrego los siguientes canaritos
+#agrego los siguientes canaritos como variables en el dataset
 for( i in 13:100 ) dataset[ , paste0("canarito", i ) :=  runif( nrow(dataset)) ]
 
 
