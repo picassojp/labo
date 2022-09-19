@@ -10,13 +10,13 @@
 
 ## Preguntas
 ## - ¿Qué es un ensamble de modelos?
-## - ¿Cómo tienen que ser los modelos dentro de un ensamble?
-## - ¿Qué técnicas conoce para ensamblar modelos?
+## - ¿Cómo tienen que ser los modelos dentro de un ensamble? diversos, variables
+## - ¿Qué técnicas conoce para ensamblar modelos? modelos basados en emsambles
 ## - ¿Por qué funcionan mejor los ensambles?
 
 
 # Los ensambles pueden partir de modelos ya desarrollados, o de modelos que se
-# creen especialmente para ser ensamblados.
+# crean especialmente para ser ensamblados.
 
 # Sobre los segundos, veremos son los llamados Bagging (bootstrap aggregating).
 # - Hacer **N** nuevos conjunto de entrenamiento usando boostraping, o sea,
@@ -47,16 +47,16 @@ require("randomForest")
 require("lightgbm")
 
 # Poner la carpeta de la materia de SU computadora local
-setwd("/home/aleb/dmeyf2022")
+setwd("C:/Users/juancho/Desktop/DMEF/")
 # Poner sus semillas
-semillas <- c(17, 19, 23, 29, 31)
+semillas <- c(668111, 945577, 433889, 914371, 676241)
 
 # Cargamos los datasets y nos quedamos solo con 202101 y 202103
 dataset <- fread("./datasets/competencia2_2022.csv.gz")
 enero <- dataset[foto_mes == 202101]
 marzo <- dataset[foto_mes == 202103]
 
-# Importante que la clase sea factor
+# Importante que la clase sea factor!!
 enero[, clase_binaria1 := factor(ifelse(
                             clase_ternaria == "BAJA+2",
                                 "evento",
@@ -73,7 +73,9 @@ dtest   <-  enero[-in_training, ]
 dtrain <-  na.roughfix(dtrain)
 dtest <-  na.roughfix(dtest)
 
-# Cantidad de variables que abren por cada hoja
+# Cantidad de variables que abren por cada hoja 
+#(las variables seleccionadas suelen ser tomados como las raiz cuadrada del total de las variables)
+# parámetro importante en randomforest es la cantidad de variables que toma
 n_variables <- round(sqrt(dim(dtrain)[2] - 1))
 
 t0 <- Sys.time()
@@ -81,7 +83,7 @@ modelo_rf_1 <- ranger(clase_binaria1 ~ ., data = dtrain,
                   probability = TRUE,
                   num.trees = 100,
                   min.node.size=10,
-                  mtry = n_variables,
+                  mtry = n_variables, #parámetro más importante
                   splitrule = "gini",
                   sample.fraction = 0.66,
                   importance = "impurity",
@@ -96,7 +98,8 @@ as.numeric(t1 - t0, units = "secs")
 pred_train <- predict(modelo_rf_1, dtrain)
 pred_test <- predict(modelo_rf_1, dtest)
 
-# Ganancia en dtrain
+# Ganancia en dtrain 
+#jamás se utiliza esta métrica
 print(sum((pred_train$predictions[, "evento"] >= 0.025) * ifelse(
                     dtrain$clase_binaria1 == "evento",
                     78000, -2000) / 0.7))
@@ -121,7 +124,8 @@ importancia
 
 ## Preguntas
 ## - ¿Qué significa que una variable sea más importante que otra?
-## - ¿Qué significa que una variable tenga 0 importancia?
+## - ¿Qué significa que una variable tenga 0 importancia? 
+# quiere decir que no se tomaron en cuenta en la cantidad de árboles predefinida, si aumento la cantidad de árboles, esa importancia debería aumentar
 ## - ¿Con el **RF** es suficiente como para descartarlas?
 ## - ¿Qué una variable tenga algo de importancia es suficiente como para
 ## - entender que da valor?
@@ -149,6 +153,7 @@ importancia2
 which(importancia2$variable == "pollito")
 
 ## Active learning o a llorar a la iglesia.
+# guarda con los pollitos! más adelante vamos a ver cómo distinguir variables "pollitos"
 
 ## ---------------------------
 ## Step 5.1: Hablando de los Extra Trees
@@ -157,10 +162,10 @@ which(importancia2$variable == "pollito")
 modelo_rf_3 <- ranger(clase_binaria1 ~ ., data = dtrain,
                   probability = TRUE,
                   num.trees = 150,
-                  min.node.size = 1000, # <---------
+                  min.node.size = 1000, # <--------- cambios
                   mtry = n_variables,
-                  splitrule = "extratrees", # <---------
-                  num.random.splits = 10, # <---------
+                  splitrule = "extratrees", # <--------- cambios
+                  num.random.splits = 10, # <--------- cambios
                   importance = "impurity",
                   verbose = TRUE)
 
@@ -170,6 +175,7 @@ colnames(importancia3) <- c("variable", "importancia")
 setorder(importancia3, -importancia)
 importancia3
 which(importancia3$variable == "pollito")
+#las mejores variables vuelven a aparecer en las posiciones superiores y los pollitos se van para abajo
 
 ## ---------------------------
 ## Step 6: Boosting, la navaja suiza de los modelos - Conceptos
@@ -273,3 +279,6 @@ for (i in 1:100) {
 summary(leaderboad)
 
 ## Bienvenido al mundo de los ensambles
+#temas a ver
+#como entrenar con datos del futuro
+#

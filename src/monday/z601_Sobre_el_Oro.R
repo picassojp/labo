@@ -18,9 +18,9 @@ require("rpart")
 require("ggplot2")
 
 # Poner la carpeta de la materia de SU computadora local
-setwd("/home/aleb/dmeyf2022")
+setwd("C:/Users/juancho/Desktop/DMEF/")
 # Poner sus semillas
-semillas <- c(17, 19, 23, 29, 31)
+semillas <- c(668111, 945577, 433889, 914371, 676241)
 
 # Cargamos los datasets y nos quedamos solo con 202101 y 202103
 dataset <- fread("./datasets/competencia2_2022.csv.gz")
@@ -79,13 +79,35 @@ leaderboad$r_publico <- frank(leaderboad$publico)
 
 leaderboad
 
+#probando con particiones de 50%
+
+leaderboad <- data.table()
+set.seed(semillas[1])
+for (i in 1:100) {
+  split <- caret::createDataPartition(marzo$clase_ternaria,
+                                      p = 0.50, list = FALSE)
+  privado <- sum((marzo$pred[split] > 0.025) *
+                   ifelse(marzo$clase_ternaria[split] == "BAJA+2", 78000, -2000)) / 0.5
+  publico <- sum((marzo$pred[-split] > 0.025) *
+                   ifelse(marzo$clase_ternaria[-split] == "BAJA+2", 78000, -2000)) / 0.5
+  leaderboad <- rbindlist(list(leaderboad,
+                               data.table(privado = privado, publico = publico)))
+}
+
+leaderboad$r_privado <- frank(leaderboad$privado)
+leaderboad$r_publico <- frank(leaderboad$publico)
+
+leaderboad
+
+
 # Guardar la salida para comparar más adelante
 summary(leaderboad)
 
 ## Preguntas
 ## ¿Qué conclusiones saca al ver los valores?
 ## - Respecto al valor real
-## - Respecto a la relación entre el **público** y el **privado**
+## - Respecto a la relación entre el **público** y el **privado** como el muestreo está estratificado, va la mismas cantidad de bajas a cada partición. Por lo que en los que 
+#la performance es muy buena (porque se queda con los más fáciles de predecir), los demás son peoeres.
 
 ## ---------------------------
 ## Step 4: Graficando leaderboads
@@ -95,6 +117,7 @@ df <- melt(leaderboad, measure.vars =  c("privado", "publico"))
 ggplot(df, aes(x = value, color = variable)) + geom_density()
 
 ## Observaciones?
+
 
 ## ---------------------------
 ## Step 5: Compitiendo entre dos modelos
@@ -117,7 +140,7 @@ marzo[, sum(ifelse(pred2 >= 0.025,
 
 ## Preguntas
 ## Abriendo la caja de pandora, ¿Cúal de los dos modelos era mejor?
-
+#cuanto más simple es el árbol, más resiste los cambios. Por eso la mejor ganancia
 ## ---------------------------
 ## Step 6: Compitiendo entre dos modelos, ahora en los leaderboards
 ## ---------------------------
@@ -150,7 +173,7 @@ leaderboad2
 
 ## Preguntas
 ## Viendo la tabla anterior, ¿En cuántos leaderboard hubiera elegido el modelo
-## correcto usando el público?
+## correcto usando el público? 
 
 ## ---------------------------
 ## Step 7: Compitiendo entre dos modelos, las curvas!
@@ -163,3 +186,4 @@ df3 <- melt(leaderboad2, measure.vars =  c("privado", "privado2"))
 ggplot(df3, aes(x = value, color = variable)) + geom_density()
 
 ## Active learning ... entender que pasa.
+#el nivel de dispersión por la aleatoriedad de las semillas es inevitable. Pero se debe disminuir la variabilidad del mismo modelo.
