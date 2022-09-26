@@ -23,9 +23,9 @@ require("ggplot2")
 require("lightgbm")
 
 # Poner la carpeta de la materia de SU computadora local
-setwd("/home/aleb/dmeyf2022")
+setwd("C:/Users/juancho/Desktop/DMEF/")
 # Poner sus semillas
-semillas <- c(17, 19, 23, 29, 31)
+semillas <- c(668111, 945577, 433889, 914371, 676241)
 
 # Cargamos los datasets y nos quedamos solo con 202101 y 202103
 dataset <- fread("./datasets/competencia2_2022.csv.gz")
@@ -100,8 +100,8 @@ setorder(marzo, cols = -pred)
 # PROBAR MULTIPLES VALORES
 set.seed(semillas[3])
 m <- 500
-f <- 2000
-t <- 12000
+f <- 1000
+t <- 25000
 
 leaderboad <- data.table()
 split <- caret::createDataPartition(marzo$clase_ternaria, p = 0.50, list = FALSE)

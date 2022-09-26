@@ -1,3 +1,4 @@
+##V0: Sólo se agregó la parte de predicción del script usado en la competencia anterior. El resto está tal cual el script original.
 ##
 ## Sobre LGBM
 ##
@@ -27,12 +28,14 @@ semillas <- c(668111, 945577, 433889, 914371, 676241)
 # Cargamos los datasets y nos quedamos solo con 202101 y 202103
 dataset <- fread("./datasets/competencia2_2022.csv.gz")
 marzo <- dataset[foto_mes == 202103]
+dapply  <- dataset[ foto_mes==202105 ]  #defino donde voy a aplicar el modelo
 rm(dataset)
 
 # Clase BAJA+1 y BAJA+2 juntas
 clase_binaria <- ifelse(marzo$clase_ternaria == "CONTINUA", 0, 1)
 clase_real <- marzo$clase_ternaria
 marzo$clase_ternaria <- NULL
+
 
 dtrain  <- lgb.Dataset(data   = data.matrix(marzo),
                        label  = clase_binaria,
@@ -159,3 +162,31 @@ lgb.importance(model_lgm)
 ## Empezaran a recibir cada vez más soporte de código, algo que en la vida de
 ## a deveras no va a pasar. Mis valientes C1 demustren estar preparados para la
 ## calle haciendo su propia Opt Bay.
+
+##se procede con la predicción
+
+#aplico el modelo a los datos nuevos
+prediccion  <- predict( object= model_lgm,
+                        newdata= dapply,
+                        type = "prob")
+
+#prediccion es una matriz con TRES columnas, llamadas "BAJA+1", "BAJA+2"  y "CONTINUA"
+#cada columna es el vector de probabilidades 
+
+#agrego a dapply una columna nueva que es la probabilidad de BAJA+2
+dapply[ , prob_baja2 := prediccion[, "evento"]]
+
+#solo le envio estimulo a los registros con probabilidad de BAJA+2 mayor  a  1/40
+dapply[ , Predicted := as.numeric( prob_baja2 > prbc3 ) ] #submission Kaggle K101_000
+#dapply[ , Predicted := as.numeric( prob_baja2 > prbc3*1.05 ) ] #submission Kaggle K101_001
+#dapply[ , Predicted := as.numeric( prob_baja2 > prbc3*1.15 ) ] #submission Kaggle K101_002
+#dapply[ , Predicted := as.numeric( prob_baja2 > prbc3*1.10 ) ] #submission Kaggle K101_003
+
+#genero el archivo para Kaggle
+#primero creo la carpeta donde va el experimento
+#dir.create( "./exp/" )
+#dir.create( "./exp/KA2004" )
+
+fwrite( dapply[ , list(numero_de_cliente, Predicted) ], #solo los campos para Kaggle
+        file= "./exp/KA2004/K101_003.csv",
+        sep=  "," )
