@@ -166,6 +166,8 @@ list_canaritos <- grepl("canarito", var_importance)
 # Cuantos canaritos aparecieron?
 length(var_importance[list_canaritos])
 
+#Observaciones: todos los canaritos quedaron agrupados en un sector del rankeo de variables, quedando muchas variables por debajo. "OJO con eliminar las variables que quedan por debajo" (Alejandro dixit)
+
 # En que posiciones
 idx <- seq(length(list_canaritos))
 idx[list_canaritos]

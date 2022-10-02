@@ -138,7 +138,8 @@ model_lgbm_cv$best_score
 model_lgbm_cv$record_evals
 
 # Armamos el modelo:
-model_lgm <- lightgbm(
+#model_lgm <- lightgbm(
+model_lgm <- lgb.train(
     data = dtrain,
     params = list(
         seed = semillas[1],
@@ -164,11 +165,13 @@ lgb.importance(model_lgm)
 ## calle haciendo su propia Opt Bay.
 
 ##se procede con la predicción
+##NO FUNCA LA PREDICCIÓN. TIRA ESTE ERROR:
+#Error in object$predict(data = data, start_iteration = start_iteration,  : 
+#argument "data" is missing, with no default
 
 #aplico el modelo a los datos nuevos
 prediccion  <- predict( object= model_lgm,
-                        newdata= dapply,
-                        type = "prob")
+                        newdata= dapply[,-"clase_ternaria"])
 
 #prediccion es una matriz con TRES columnas, llamadas "BAJA+1", "BAJA+2"  y "CONTINUA"
 #cada columna es el vector de probabilidades 
