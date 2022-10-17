@@ -19,18 +19,18 @@ semillas <- c(668111, 945577, 433889, 914371, 676241)
 #defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento  <- "KA7241"
+PARAM$experimento  <- "KA7234"
 
 PARAM$input$dataset       <- "./datasets/competencia2_2022.csv.gz"
 PARAM$input$training      <- c( 202103 )
 PARAM$input$future        <- c( 202105 )
 
 PARAM$finalmodel$max_bin           <- 31
-PARAM$finalmodel$learning_rate     <- 0.010613154
-PARAM$finalmodel$num_iterations    <- 54
-PARAM$finalmodel$num_leaves        <- 328
-PARAM$finalmodel$min_data_in_leaf  <- 392
-PARAM$finalmodel$feature_fraction  <- 0.97
+PARAM$finalmodel$learning_rate     <- 0.005
+PARAM$finalmodel$num_iterations    <- 727
+PARAM$finalmodel$num_leaves        <- 514
+PARAM$finalmodel$min_data_in_leaf  <- 805
+PARAM$finalmodel$feature_fraction  <- 0.53
 PARAM$finalmodel$semilla           <- semillas[1]
 
 #------------------------------------------------------------------------------
@@ -121,9 +121,6 @@ dapply[ Master_fultimo_cierre==14, Master_fultimo_cierre := 18 ]
 dapply[ Master_fultimo_cierre==28, Master_fultimo_cierre := 32 ]
 dapply[ Master_fultimo_cierre==35, Master_fultimo_cierre := 39 ]
 dapply[ Master_fultimo_cierre> 39, Master_fultimo_cierre := Master_fultimo_cierre + 4 ]
-
-
-
 
 #aplico el modelo a los datos nuevos
 prediccion  <- predict( modelo, 
