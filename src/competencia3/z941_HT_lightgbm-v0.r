@@ -3,8 +3,6 @@
 # 256 GB de espacio en el disco local
 #   8 vCPU
 
-# pensado para datasets con UNDERSAPLING de la clase mayoritaria
-
 #limpio la memoria
 rm( list=ls() )  #remove all objects
 gc()             #garbage collection
@@ -21,9 +19,9 @@ require("mlrMBO")
 
 #Parametros del script
 PARAM  <- list()
-PARAM$experimento <- "HT9420"
+PARAM$experimento <- "HT9410"
 
-PARAM$exp_input  <- "TS9320"
+PARAM$exp_input  <- "TS9310"
 # FIN Parametros del script
 
 
@@ -35,7 +33,7 @@ options(error = function() {
 })
 #------------------------------------------------------------------------------
 
-ksemilla  <-  102191 #semilla original del script
+ksemilla  <- c(668111, 945577, 433889, 914371, 676241) # Poner sus semillas
 
 kcrossvalidation_folds  <- 5  #En caso que se haga cross validation, se usa esta cantidad de folds
 
@@ -73,15 +71,15 @@ param_lgb_basicos  <- list(
 
 #Aqui se cargan los hiperparametros que se optimizan en la Bayesian Optimization
 hs <- makeParamSet( 
-         makeNumericParam("learning_rate",    lower=    0.01, upper=  0.3),
-         makeNumericParam("feature_fraction", lower=    0.2 , upper=  0.8),
-         makeNumericParam("coverage",         lower=    0.05, upper=  1.0),
-         makeNumericParam("leaf_size_log",    lower=    1.0 , upper= 12.0)
+         makeNumericParam("learning_rate",    lower=    0.005, upper=    0.3),
+         makeNumericParam("feature_fraction", lower=    0.2  , upper=    1.0),
+         makeIntegerParam("min_data_in_leaf", lower=    0L   , upper=  8000L),
+         makeIntegerParam("num_leaves",       lower=   16L   , upper=  2048L)
         )
 
 
 #si usted es ambicioso, y tiene paciencia, podria subir este valor a 100
-kBO_iteraciones  <- 100  #iteraciones de la Optimizacion Bayesiana
+kBO_iteraciones  <- 50  #iteraciones de la Optimizacion Bayesiana
 
 #------------------------------------------------------------------------------
 #graba a un archivo los componentes de lista
@@ -117,7 +115,7 @@ fganancia_lgbm_meseta  <- function( probs, datos)
   vlabels  <- get_field(datos, "label")
 
   tbl  <- as.data.table( list( "prob"= probs, 
-                               "gan" = ifelse( vlabels==1 , 78000, -2000 ) ) )
+                               "gan" = ifelse( vlabels==1 , 78000, -2000  ) ) )
 
   setorder( tbl, -prob )
   tbl[ , posicion := .I ]
@@ -143,12 +141,6 @@ EstimarGanancia_lightgbm  <- function( x )
   param_completo  <- c( param_lgb_basicos,  x )
 
   param_completo$early_stopping_rounds  <- as.integer(200 + 4/param_completo$learning_rate )
-  
-  #Primero defino el tamaño de las hojas
-  param_completo$min_data_in_leaf  <- pmax( 1,  round( nrow(dtrain) / ( 2.0 ^ x$leaf_size_log ))  )
-  #Luego la cantidad de hojas en funcion del valor anterior, el coverage, y la cantidad de registros
-  param_completo$num_leaves  <-  pmin( 131072, pmax( 2,  round(x$coverage * nrow( dtrain ) / param_completo$min_data_in_leaf ) ) )
-  cat( "min_data_in_leaf:", param_completo$min_data_in_leaf,  ",  num_leaves:", param_completo$num_leaves, "\n" )
 
   vprob_optima  <<- c()
   set.seed( param_completo$seed )
@@ -195,10 +187,6 @@ EstimarGanancia_lightgbm  <- function( x )
   ds  <- list( "cols"= ncol(dtrain),  "rows"= nrow(dtrain) )
   xx  <- c( ds, copy(param_completo) )
 
-  #quito los parametros reales
-  xx$min_data_in_leaf <- NULL
-  xx$num_leaves <- NULL
-
   xx$early_stopping_rounds  <- NULL
   xx$num_iterations  <- modelo_train$best_iter
   xx$prob_corte  <- prob_corte
@@ -225,7 +213,7 @@ fganancia_lgbm_mesetaCV  <- function( probs, datos)
   tbl  <- as.data.table( list( "prob"= probs, 
                                "gan" = ifelse( vlabels==1 & vpesos > 1,
                                                78000,
-                                               -2000 ) ) )
+                                               -2000  ) ) )
 
   setorder( tbl, -prob )
   tbl[ , posicion := .I ]
@@ -252,11 +240,6 @@ EstimarGanancia_lightgbmCV  <- function( x )
   param_completo  <- c(param_lgb_basicos,  x )
 
   param_completo$early_stopping_rounds  <- as.integer(200 + 4/param_completo$learning_rate )
-
-  #Primero defino el tamaño de las hojas
-  param_completo$min_data_in_leaf  <- pmax( 1,  round( nrow(dtrain) / ( 2.0 ^ x$leaf_size_log ))  )
-  #Luego la cantidad de hojas en funcion del valor anterior, el coverage, y la cantidad de registros
-  param_completo$num_leaves  <-  pmin( 131072, pmax( 2,  round(x$coverage * nrow( dtrain ) / param_completo$min_data_in_leaf ) ) )
 
   vprob_optima  <<- c()
   vpos_optima   <<- c()
@@ -306,10 +289,6 @@ EstimarGanancia_lightgbmCV  <- function( x )
   ds  <- list( "cols"= ncol(dtrain),  "rows"= nrow(dtrain) )
   xx  <- c( ds, copy(param_completo) )
 
-  #quito los parametros reales
-  xx$min_data_in_leaf <- NULL
-  xx$num_leaves <- NULL
-
   xx$early_stopping_rounds  <- NULL
   xx$num_iterations  <- modelocv$best_iter
   xx$prob_corte  <-  prob_corte
@@ -342,7 +321,6 @@ if( dataset[ fold_train==1, .N ] == 0 ) stop("Error, en el dataset no hay fold_t
 #creo la carpeta donde va el experimento
 dir.create( paste0( "./exp/", PARAM$experimento, "/"), showWarnings = FALSE )
 setwd(paste0( "./exp/", PARAM$experimento, "/"))   #Establezco el Working Directory DEL EXPERIMENTO
-
 
 cat( PARAM$exp_input,
      file= "TrainingStrategy.txt",
