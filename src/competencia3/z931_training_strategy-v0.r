@@ -20,9 +20,9 @@ PARAM$exp_input  <- "FE9250"
 
 PARAM$future       <- c( 202107 ) #donde se aplica el modelo, NO tiene clase
 
-PARAM$final_train  <- c( 202101, 202102, 202103, 202104, 202105 )
+PARAM$final_train  <- c( 202101, 202102, 202103, 202104, 202105 ) #se agregan dos meses más
 
-PARAM$train$training     <- c( 202011, 202012, 202101, 202102, 202103 )
+PARAM$train$training     <- c( 202011, 202012, 202101, 202102, 202103 ) #se agregan dos meses más acá también
 PARAM$train$validation   <- c( 202104 )
 PARAM$train$testing      <- c( 202105 ) #ultimo mes con clase
 PARAM$train$undersampling  <- 1.0   # 1.0 significa NO undersampling ,  0.1  es quedarse con el 10% de los CONTINUA
