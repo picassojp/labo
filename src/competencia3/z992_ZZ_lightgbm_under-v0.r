@@ -112,7 +112,7 @@ for(s in 1:length(ksemilla))
     parametros$coverage  <- NULL
   
     #Utilizo la semilla definida en este script
-    parametros$seed  <- ksemilla
+    parametros$seed  <- ksemilla[s]
     
     #genero el modelo entrenando en los datos finales
     set.seed( parametros$seed )
