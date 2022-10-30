@@ -61,7 +61,7 @@ dataset[ , clase01 := ifelse( clase_ternaria %in% c("BAJA+1","BAJA+2"), 1, 0 )  
 
 campos_buenos  <- setdiff( colnames(dataset), c( "clase_ternaria", "clase01") )
 
-for(s in 1:length(ksemilla))
+for(s in ksemilla)
 {
   #genero un modelo para cada uno de las modelos_qty MEJORES iteraciones de la Bayesian Optimization
   for( i in  1:PARAM$modelos )
@@ -74,7 +74,7 @@ for(s in 1:length(ksemilla))
                             "_",
                             sprintf( "%03d", iteracion_bayesiana ),
                             "_",
-                            sprintf( "%02d", ksemilla[s] ),
+                            sprintf( "%01d", s ),
                             ".model" )
   
   
@@ -98,7 +98,7 @@ for(s in 1:length(ksemilla))
     parametros$iteracion_bayesiana  <- NULL
   
     #Utilizo la semilla definida en este script
-    parametros$seed  <- ksemilla[s]
+    parametros$seed  <- s
     
     #genero el modelo entrenando en los datos finales
     set.seed( parametros$seed )
@@ -118,7 +118,7 @@ for(s in 1:length(ksemilla))
                           "_",
                           sprintf( "%03d", iteracion_bayesiana ),
                           "_",
-                          sprintf( "%02d", ksemilla[s] ),
+                          sprintf( "%01d", s ),
                           ".txt" ),
             sep= "\t" )
   
@@ -136,7 +136,7 @@ for(s in 1:length(ksemilla))
                          "_",
                          sprintf( "%03d", iteracion_bayesiana),
                          "_",
-                         sprintf( "%02d", ksemilla[s] ),
+                         sprintf( "%01d", s ),
                          ".csv"  )
   
     fwrite( tb_prediccion,
@@ -165,7 +165,7 @@ for(s in 1:length(ksemilla))
                              "_",
                              sprintf( "%05d", corte ),
                              "_",
-                             sprintf( "%02d", ksemilla[s] ),
+                             sprintf( "%01d", s ),
                              ".csv" )
   
       fwrite(  tb_prediccion[ , list( numero_de_cliente, Predicted ) ],
