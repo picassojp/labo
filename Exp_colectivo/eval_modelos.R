@@ -68,7 +68,7 @@ setwd(paste0( base_dir, "exp/colectivos/", PARAM$experimento, "/"))   #Establezc
 
 cortes <- seq(from=7000, to= 15000, by= 250)
 
-tb_prediccion <- fread(paste0(base_dir,PARAM$exp_input,"/pred_",PARAM$model_nmbr,"_",PARAM$model_name,".csv"))
+tb_prediccion <- fread(paste0(base_dir,"exp/colectivos/",PARAM$exp_input,"/pred_",PARAM$model_nmbr,"_",PARAM$model_name,".csv"))
 df_true <- fread(paste0( base_dir, "exp/colectivos/202107.csv"))
 
 
