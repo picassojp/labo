@@ -23,7 +23,7 @@ semillas <- c(668111, 945577, 433889, 914371, 676241)
 
 #Parametros del script
 PARAM  <- list()
-PARAM$experimento <- "HT9420KF0"
+PARAM$experimento <- "HT9420KF5"
 
 PARAM$exp_input  <- "TS9320KF5"
 # FIN Parametros del script
