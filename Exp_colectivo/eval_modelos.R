@@ -52,9 +52,9 @@ PARAM$exp_input  <- "ZZ9420AD0"
 
 # FIN Parametros del script
 
-exp <- "" 
-model_nmbr <- "" 
-model_name <- "" 
+# exp <- "" 
+# model_nmbr <- "" 
+# model_name <- "" 
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ setwd(paste0( base_dir, "exp/colectivos/", PARAM$experimento, "/"))   #Establezc
 cortes <- seq(from=7000, to= 15000, by= 250)
 
 tb_prediccion <- fread(paste0(base_dir,"exp/colectivos/",PARAM$exp_input,"/pred_",PARAM$model_nmbr,"_",PARAM$model_name,".csv"))
-df_true <- fread(paste0( base_dir, "exp/colectivos/202107.csv"))
+#df_true <- fread(paste0( base_dir, "exp/colectivos/202107.csv"))
 
 
 df_all <- df_true[tb_prediccion,on='numero_de_cliente']
@@ -80,8 +80,8 @@ for (corte in cortes){
   
   df_all[  , Predicted := 0L ]
   df_all[ 1:corte, Predicted := 1L ]
-  df_all[, ganancia := 78000 * (Predicted == 1 & true_class == 1) + (-2000) * (Predicted == 1 & true_class == 0)]
-  ganancia <- round(colSums(df_all[,'ganancia']) / 1000000, digits=5)
+  #df_all[, ganancia := 78000 * (Predicted == 1 & true_class == 1) + (-2000) * (Predicted == 1 & true_class == 0)]
+  #ganancia <- round(colSums(df_all[,'ganancia']) / 1000000, digits=5)
   new_row    <- data.table("corte" = corte, "ganancia" = ganancia)
   ganancias <- rbindlist(list(ganancias, new_row))
 }

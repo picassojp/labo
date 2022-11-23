@@ -7,9 +7,11 @@ require("data.table")
 # Parametros del script
 PARAM <- list()
 PARAM$experimento <- "ZZ1292_ganancias_semillerio"
-PARAM$exp_input <- "ZZ9420KF0_semillerio"
+PARAM$exp_input <- "ZZ9420KF1_semillerio"
+#PARAM$exp_input <- "ZZ9420KF2_semillerio"
+#PARAM$exp_input <- "ZZ9420KF7_semillerio"
 
-PARAM$corte <- 11500 # cantidad de envios
+PARAM$corte <- 10000 # cantidad de envios
 # FIN Parametros del script
 
 options(error = function() {
